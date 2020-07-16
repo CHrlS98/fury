@@ -1209,7 +1209,7 @@ def _tensor_slicer_mapper(evals, evecs, affine=None, mask=None, sphere=None,
 
 def peak_slicer(peaks_dirs, peaks_values=None, mask=None, affine=None,
                 colors=(1, 0, 0), opacity=1., linewidth=1,
-                lod=False, lod_points=10 ** 4, lod_points_size=3):
+                lod=False, lod_points=10 ** 4, lod_points_size=3, symm=True):
     """Visualize peak directions as given from ``peaks_from_model``.
 
     Parameters
@@ -1295,9 +1295,13 @@ def peak_slicer(peaks_dirs, peaks_values=None, mask=None, affine=None,
                         pv = peaks_values[tuple(center)][i]
                     else:
                         pv = 1.
-                    symm = np.vstack((-peaks_dirs[tuple(center)][i] * pv + xyz,
-                                      peaks_dirs[tuple(center)][i] * pv + xyz))
-                    list_dirs.append(symm)
+                    if symm:
+                        dirs = np.vstack((-peaks_dirs[tuple(center)][i] * pv + xyz,
+                                        peaks_dirs[tuple(center)][i] * pv + xyz))
+                    else:
+                        dirs = np.vstack((xyz,
+                                        peaks_dirs[tuple(center)][i] * pv + xyz))
+                    list_dirs.append(dirs)
 
             self.line = line(list_dirs, colors=colors,
                              opacity=opacity, linewidth=linewidth,
