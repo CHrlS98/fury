@@ -752,7 +752,7 @@ def line(lines, colors=None, opacity=1, linewidth=1,
     return actor
 
 
-def scalar_bar(lookup_table=None, title=" "):
+def scalar_bar(lookup_table=None, title=" ", nb_labels=6):
     """ Default scalar bar actor for a given colormap (colorbar)
 
     Parameters
@@ -778,7 +778,10 @@ def scalar_bar(lookup_table=None, title=" "):
     scalar_bar = vtk.vtkScalarBarActor()
     scalar_bar.SetTitle(title)
     scalar_bar.SetLookupTable(lookup_table_copy)
-    scalar_bar.SetNumberOfLabels(6)
+    scalar_bar.SetNumberOfLabels(nb_labels)
+
+    scalar_bar.SetPosition(0.9, 0.1)
+    scalar_bar.SetWidth(0.1)
 
     return scalar_bar
 

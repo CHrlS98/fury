@@ -12,7 +12,8 @@ cm, have_matplotlib, _ = optional_package('matplotlib.cm')
 
 
 def colormap_lookup_table(scale_range=(0, 1), hue_range=(0.8, 0),
-                          saturation_range=(1, 1), value_range=(0.8, 0.8)):
+                          saturation_range=(1, 1), value_range=(0.8, 0.8),
+                          colors=None):
     """Lookup table for the colormap.
 
     Parameters
@@ -33,12 +34,18 @@ def colormap_lookup_table(scale_range=(0, 1), hue_range=(0.8, 0),
 
     """
     lookup_table = vtk.vtkLookupTable()
+    if colors is not None:
+        lookup_table.SetNumberOfTableValues(colors.shape[0])
+        for i in range(colors.shape[0]):
+            c = colors[i]
+            lookup_table.SetTableValue(i, c[0], c[1], c[2])
+    else:
+        lookup_table.SetHueRange(hue_range)
+        lookup_table.SetSaturationRange(saturation_range)
+        lookup_table.SetValueRange(value_range)
+
     lookup_table.SetRange(scale_range)
     lookup_table.SetTableRange(scale_range)
-
-    lookup_table.SetHueRange(hue_range)
-    lookup_table.SetSaturationRange(saturation_range)
-    lookup_table.SetValueRange(value_range)
 
     lookup_table.Build()
     return lookup_table
