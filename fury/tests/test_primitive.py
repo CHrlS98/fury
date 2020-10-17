@@ -10,7 +10,8 @@ def test_vertices_primitives():
                     (fp.prim_box, (8, 3), -.5, .5, 0),
                     (fp.prim_tetrahedron, (4, 3), -.5, .5, 0),
                     (fp.prim_star, (10, 3), -3, 3, -0.0666666666),
-                    (fp.prim_rhombicuboctahedron, (24, 3), -4, 4, 0)]
+                    (fp.prim_rhombicuboctahedron, (24, 3), -4, 4, 0),
+                    (fp.prim_frustum, (8, 3), -0.5, 0.5, 0)]
 
     for func, shape, e_min, e_max, e_mean in l_primitives:
         vertices, _ = func()
@@ -40,20 +41,12 @@ def test_vertices_primitives_octagonalprism():
     # Testing the default vertices of the primitive octagonal prism.
     vertices, _ = fp.prim_octagonalprism()
     shape = (16, 3)
+    two = (1 + float('{:.7f}'.format(math.sqrt(2)))) / 4
+
     npt.assert_equal(vertices.shape, shape)
     npt.assert_equal(np.mean(vertices), 0)
-    npt.assert_equal(vertices.min(), -(1+float('{:.7f}'.format(math.sqrt(2)))))
-    npt.assert_equal(vertices.max(), (1+float('{:.7f}'.format(math.sqrt(2)))))
-
-
-def test_vertices_primitives_frustum():
-    # Testing the default vertices of the primitive frustum sqaure pyramid.
-    vertices, _ = fp.prim_frustum()
-    shape = (8, 3)
-    npt.assert_equal(vertices.shape, shape)
-    npt.assert_equal(np.mean(vertices), 0)
-    npt.assert_equal(vertices.min(), -1)
-    npt.assert_equal(vertices.max(), 1)
+    npt.assert_equal(vertices.min(), -two)
+    npt.assert_equal(vertices.max(), two)
 
 
 def test_triangles_primitives():
@@ -101,6 +94,28 @@ def test_superquadric_primitives():
     npt.assert_equal(sq_faces.shape, s_faces.shape)
 
     # TODO: We need to check some superquadrics shape
+
+
+def test_cylinder_primitive():
+    verts, faces = fp.prim_cylinder(radius=.5, height=1, sectors=10)
+    npt.assert_equal(verts.shape, (44, 3))
+    npt.assert_almost_equal(np.mean(verts), 0, decimal=1)
+    npt.assert_equal(verts.min(), -.5)
+    npt.assert_equal(verts.max(), .5)
+
+    # basic tests for triangle
+    npt.assert_equal(faces.shape, (40, 3))
+    npt.assert_equal(np.unique(np.concatenate(faces, axis=None)).tolist(),
+                     list(range(len(verts))))
+
+    verts, faces = fp.prim_cylinder(radius=.5, height=1, sectors=10, capped=False)
+    npt.assert_equal(verts.shape, (22, 3))
+    npt.assert_almost_equal(np.mean(verts), 0, decimal=1)
+    npt.assert_equal(verts.min(), -.5)
+    npt.assert_equal(verts.max(), .5)
+    npt.assert_equal(np.unique(np.concatenate(faces, axis=None)).tolist(),
+                     list(range(len(verts))))
+
 
 
 def test_repeat_primitive():
