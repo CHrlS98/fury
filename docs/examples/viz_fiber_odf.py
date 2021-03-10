@@ -22,7 +22,7 @@ from dipy.data import get_sphere
 fetch_viz_dmri()
 fetch_viz_icons()
 
-fodf_img = nib.load(read_viz_dmri('fodf.nii.gz'))
+fodf_img = nib.load('wm_fodf.nii.gz')
 sh = fodf_img.get_fdata()
 affine = fodf_img.affine
 grid_shape = sh.shape[:-1]
@@ -39,6 +39,7 @@ B_low = sh_to_sf_matrix(sphere_low, 8, return_inv=False)
 # the middle of the volume and we add them to a `scene`.
 
 # Change these values to test various parameters combinations.
+mask = nib.load('wm_mask.nii.gz').get_fdata().astype(bool)
 scale = 0.5
 norm = False
 colormap = None
@@ -48,14 +49,14 @@ global_cm = False
 
 # ODF slicer for axial slice
 odf_actor_z = actor.odf_slicer(sh, affine=affine, sphere=sphere_low,
-                               scale=scale, norm=norm,
+                               scale=scale, norm=norm, mask=mask,
                                radial_scale=radial_scale, opacity=opacity,
                                colormap=colormap, global_cm=global_cm,
                                B_matrix=B_low)
 
 # ODF slicer for coronal slice
 odf_actor_y = actor.odf_slicer(sh, affine=affine, sphere=sphere_low,
-                               scale=scale, norm=norm,
+                               scale=scale, norm=norm, mask=mask,
                                radial_scale=radial_scale, opacity=opacity,
                                colormap=colormap, global_cm=global_cm,
                                B_matrix=B_low)
@@ -64,7 +65,7 @@ odf_actor_y.display_extent(0, grid_shape[0] - 1, grid_shape[1]//2,
 
 # ODF slicer for sagittal slice
 odf_actor_x = actor.odf_slicer(sh, affine=affine, sphere=sphere_low,
-                               scale=scale, norm=norm,
+                               scale=scale, norm=norm, mask=mask,
                                radial_scale=radial_scale, opacity=opacity,
                                colormap=colormap, global_cm=global_cm,
                                B_matrix=B_low)
@@ -144,6 +145,21 @@ def change_sphere(combobox):
     odf_actor_z.update_sphere(sphere.vertices, sphere.faces, B)
 
 
+def toggle_visibility_slice_x(obj, event):
+    odf_actor_x.SetVisibility(not(odf_actor_x.GetVisibility()))
+    show_m.iren.Render()
+
+
+def toggle_visibility_slice_y(obj, event):
+    odf_actor_y.SetVisibility(not(odf_actor_y.GetVisibility()))
+    show_m.iren.Render()
+
+
+def toggle_visibility_slice_z(obj, event):
+    odf_actor_z.SetVisibility(not(odf_actor_z.GetVisibility()))
+    show_m.iren.Render()
+
+
 line_slider_z.on_change = change_slice_z
 line_slider_y.on_change = change_slice_y
 line_slider_x.on_change = change_slice_x
@@ -171,6 +187,20 @@ def build_label(text):
 line_slider_label_z = build_label(text="Z Slice")
 line_slider_label_y = build_label(text="Y Slice")
 line_slider_label_x = build_label(text="X Slice")
+
+
+line_slider_label_x.actor.AddObserver('LeftButtonPressEvent',
+                                      toggle_visibility_slice_x,
+                                      1.0)
+
+line_slider_label_y.actor.AddObserver('LeftButtonPressEvent',
+                                      toggle_visibility_slice_y,
+                                      1.0)
+
+line_slider_label_z.actor.AddObserver('LeftButtonPressEvent',
+                                      toggle_visibility_slice_z,
+                                      1.0)
+
 
 panel = ui.Panel2D(size=(300, 200),
                    color=(1, 1, 1),
@@ -211,7 +241,7 @@ show_m.initialize()
 ###############################################################################
 # Finally, please set the following variable to ``True`` to interact with the
 # datasets in 3D.
-interactive = False
+interactive = True
 
 if interactive:
     show_m.add_window_callback(win_callback)
