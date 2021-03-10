@@ -1779,7 +1779,8 @@ def superquadric(centers, roundness=(1, 1), directions=(1, 0, 0),
     >>> scene = window.Scene()
     >>> centers = np.random.rand(3, 3) * 10
     >>> directions = np.random.rand(3, 3)
-    >>> scales = np.random.rand(5)
+    >>> scales = np.random.rand(3)
+    >>> colors = np.random.rand(3, 3)
     >>> roundness = np.array([[1, 1], [1, 2], [2, 1]])
     >>> sq_actor = actor.superquadric(centers, roundness=roundness,
     ...                               directions=directions,
@@ -2439,7 +2440,7 @@ def sdf(centers, directions=(1, 0, 0), colors=(1, 0, 0), primitives='torus',
         The orientation vector of the SDF primitive.
     primitives : str, list, tuple, np.ndarray
         The primitive of choice to be rendered.
-        Options are sphere and torus. Default is torus.
+        Options are sphere, torus and ellipsoid. Default is torus.
     scales : float
         The size of the SDF primitive
 
@@ -2448,7 +2449,7 @@ def sdf(centers, directions=(1, 0, 0), colors=(1, 0, 0), primitives='torus',
     vtkActor
     """
 
-    prims = {'sphere': 1, 'torus': 2, 'ellipsoid': 3}
+    prims = {'sphere': 1, 'torus': 2, 'ellipsoid': 3, 'capsule': 4}
 
     verts, faces = fp.prim_box()
     repeated = fp.repeat_primitive(verts, faces, centers=centers,
